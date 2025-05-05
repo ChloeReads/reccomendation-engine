@@ -8,7 +8,6 @@ from matplotlib.figure import Figure
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import matplotlib.ticker as mtick
 
 ############### Data Import and Processing #####################
 
@@ -19,6 +18,7 @@ df_cleaned['Author'] = df_cleaned['Author'].str.lower()
 df_cleaned['Narrator'] = df_cleaned['Narrator'].str.lower()
 df_cleaned['Series'] = df_cleaned['Series'].str.lower()
 df_cleaned['Genres'] = df_cleaned['Genres'].str.lower()
+df_cleaned['Description'] = df_cleaned['Description'].str.lower()
 
 df_combined = df_cleaned
 df_combined['data'] = df_combined[df_combined.columns[1:]].apply(
@@ -93,9 +93,8 @@ def output_recs():
 	ax = fig.add_subplot(111)
 	charts = FigureCanvasTkAgg(fig, master=frame1)
 	labels = recommendations['ReadableTitle']
-	values = recommendations[input_book] * 100
+	values = recommendations[input_book]
 	ax.barh(labels, values, color="#8c97e6")
-	ax.xaxis.set_major_formatter(mtick.PercentFormatter())
 	ax.set_title("Book Similarity")
 	ax.set_facecolor("#E4E2E2")
 	charts.draw()
@@ -105,7 +104,6 @@ def output_recs():
 		for i in recommendations['ReadableTitle']:
 			list_box.insert(tk.END, i)
 		list_box.place(x=10, y=10, height=130, width= 430)
-		print(frame1.winfo_children)
 	else:	
 		for i in frame1.winfo_children():
 			i.destroy()
