@@ -63,7 +63,6 @@ frame2.place(x=340, y=70, width=450, height=150)
 
 ############ Build our Interactables ###################
 
-
 # Create Dropdown Option Menu (allows user to select Book)
 option_menu_options = df_similarities['ReadableTitle']
 option_menu_var = tk.StringVar(value="Select option")
