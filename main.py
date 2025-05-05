@@ -32,19 +32,17 @@ vectorizer = CountVectorizer()
 vectorized = vectorizer.fit_transform(df_combined['data'])
 similarities = cosine_similarity(vectorized)
 df_similarities = pd.DataFrame(similarities, columns=df_cleaned['ReadableTitle'],index=df_cleaned['ReadableTitle']).reset_index()
-#df_similarities = df_similarities.merge(df_cleaned,how='left',on='Title')
-print(df_similarities)
 
 ############### Create and Layout Main Window ###############
 
 # Define the main window
 main = tk.Tk()
 main.config(bg="#939393")
-main.title("Zaclib Recommender")
+main.title("ZacLib Recommender")
 main.geometry("800x500")
 
 # Define Title Element
-label = tk.Label(master=main, text="Zaclib - Audiobook Recommender")
+label = tk.Label(master=main, text="ZacLib - Audiobook Recommender")
 label.config(bg="#E4E2E2", fg="#000", font=("Helvetica", 32, ))
 label.place(x=10, y=10, width=780, height=50)
 
@@ -75,38 +73,43 @@ option_menu.place(x=10, y=10, width=300, height=40)
 
 no_recs = tk.Label(master=frame2, text="No Similar Books Found")
 no_recs.config(bg="#E4E2E2", fg="#000", font=("Helvetica", 16))
+list_box = ScrollableListbox(parent=frame2, scrollx=False, scrolly=True)
+list_box.config(bg="#E4E2E2", fg="#000")
 
 # Variable to create and populate recommendations list and similarities chart
 def output_recs():
+
 	no_recs.place_forget()
-	input_book = option_menu_var.get()
-	list_box = ScrollableListbox(parent=frame2, scrollx=False, scrolly=True)
 	list_box.place_forget()
-	#list_box.delete(0,tk.END)
-	list_box.selection_clear()
+	list_box.delete(0,tk.END)
+	input_book = option_menu_var.get()
+
 	recommendations = pd.DataFrame(df_similarities.nlargest(6,input_book)).sort_values(by=input_book,ascending=True)
 	recommendations = recommendations[recommendations['ReadableTitle']!=input_book]
 	recommendations = recommendations[recommendations[input_book] > 0]
-	if recommendations[input_book].sum() == 0:
-		no_recs.place(x=10, y=10, width=430, height=130)
-	else:
+
+	fig = Figure(figsize=(2, 2), dpi=100, constrained_layout=True)
+	fig.patch.set_facecolor("#E4E2E2")
+	ax = fig.add_subplot(111)
+	charts = FigureCanvasTkAgg(fig, master=frame1)
+	labels = recommendations['ReadableTitle']
+	values = recommendations[input_book] * 100
+	ax.barh(labels, values, color="#8c97e6")
+	ax.xaxis.set_major_formatter(mtick.PercentFormatter())
+	ax.set_title("Book Similarity")
+	ax.set_facecolor("#E4E2E2")
+	charts.draw()
+	charts.get_tk_widget().place(x=10, y=10, width=760, height=240)
+	
+	if recommendations[input_book].sum() != 0:
 		for i in recommendations['ReadableTitle']:
 			list_box.insert(tk.END, i)
-		list_box.config(bg="#E4E2E2", fg="#000")
 		list_box.place(x=10, y=10, height=130, width= 430)
-		print(recommendations)
-		fig = Figure(figsize=(2, 2), dpi=100, constrained_layout=True)
-		fig.patch.set_facecolor("#E4E2E2")
-		ax = fig.add_subplot(111)
-		labels = recommendations['ReadableTitle']
-		values = recommendations[input_book] * 100
-		ax.barh(labels, values, color="#8c97e6")
-		ax.xaxis.set_major_formatter(mtick.PercentFormatter())
-		ax.set_title("Book Similarity")
-		ax.set_facecolor("#E4E2E2")
-		charts = FigureCanvasTkAgg(fig, master=frame1)
-		charts.draw()
-		charts.get_tk_widget().place(x=10, y=0, width=760, height=240)
+		print(frame1.winfo_children)
+	else:	
+		for i in frame1.winfo_children():
+			i.destroy()
+		no_recs.place(x=10, y=10, width=430, height=130)
 
 # Button used to call the above variable
 generate = tk.Button(master=frame, text="Give me Recommendations!", command=lambda: output_recs())
