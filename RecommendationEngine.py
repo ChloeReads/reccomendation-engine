@@ -24,6 +24,7 @@ df_cleaned['Narrator'] = df_cleaned['Narrator'].str.lower()
 df_cleaned['Series'] = df_cleaned['Series'].str.lower()
 df_cleaned['Genres'] = df_cleaned['Genres'].str.lower()
 df_cleaned['Description'] = df_cleaned['Description'].str.lower()
+df_cleaned.sort_values(by='Readable Title', axis=1)
 
 # Combine relevant columns into a single column for similarity analysis
 df_combined = df_cleaned
