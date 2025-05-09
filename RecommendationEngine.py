@@ -12,28 +12,32 @@ from sklearn.metrics.pairwise import cosine_similarity  # Computing similarities
 ############### Data Import and Processing #####################
 
 # Load dataset from CSV file
-df_source = pd.read_csv('ReccomendationEngineSource.csv')
+df_source = pd.read_csv('data/ReccomendationEngineSource.csv')
 
 # Remove duplicate entries based on the 'Title' column
 df_cleaned = df_source.drop_duplicates(subset='Title')
 
-# Convert text data to lowercase for consistency in comparisons
+# Convert text data to lowercase for as a requirement for CountVectorizer function
 df_cleaned['Title'] = df_cleaned['Title'].str.lower()
 df_cleaned['Author'] = df_cleaned['Author'].str.lower()
 df_cleaned['Narrator'] = df_cleaned['Narrator'].str.lower()
 df_cleaned['Series'] = df_cleaned['Series'].str.lower()
 df_cleaned['Genres'] = df_cleaned['Genres'].str.lower()
-df_cleaned['Description'] = df_cleaned['Description'].str.lower()
+
+# Convert text to lower case and remove new line characters to clean up input
+df_cleaned['Description'] = df_cleaned['Description'].str.lower().replace(to_replace="\n",value=" ").replace(to_replace="\r",value=" ")
 
 # Sort list Alphabetically
 df_cleaned.sort_values(by=['Title'], inplace=True)
 
 # Combine relevant columns into a single column for similarity analysis
-df_combined = df_cleaned
+df_combined = df_cleaned.drop(['ReadableTitle'],axis=1)
 df_combined['data'] = df_combined[df_combined.columns[1:]].apply(
     lambda x: ' '.join(x.dropna().astype(str)),  # Concatenating non-null text values
     axis=1
 )
+
+df_combined['ReadableTitle'] = df_cleaned['ReadableTitle']
 
 ############# Build our Cosine Similarity Model ################
 
@@ -54,6 +58,7 @@ main = tk.Tk()
 main.config(bg="#939393")  # Set background color
 main.title("ZacLib Recommender")  # Window title
 main.geometry("800x500")  # Set window dimensions
+main.iconbitmap(default="Img/Audiobook_Square.ico")
 
 # Define label for the application title
 label = tk.Label(master=main, text="ZacLib - Audiobook Recommender")
