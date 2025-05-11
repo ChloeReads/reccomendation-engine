@@ -23,9 +23,7 @@ df_cleaned['Author'] = df_cleaned['Author'].str.lower()
 df_cleaned['Narrator'] = df_cleaned['Narrator'].str.lower()
 df_cleaned['Series'] = df_cleaned['Series'].str.lower()
 df_cleaned['Genres'] = df_cleaned['Genres'].str.lower()
-
-# Convert text to lower case and remove new line characters to clean up input
-df_cleaned['Description'] = df_cleaned['Description'].str.lower().replace(to_replace="\n",value=" ").replace(to_replace="\r",value=" ")
+df_cleaned['Description'] = df_cleaned['Description'].str.lower()
 
 # Sort list Alphabetically
 df_cleaned.sort_values(by=['Title'], inplace=True)
@@ -48,7 +46,7 @@ vectorized = vectorizer.fit_transform(df_combined['data'])
 # Compute cosine similarity matrix
 similarities = cosine_similarity(vectorized)
 
-# Store similarity data in a DataFrame for easy retrieval
+# Store similarity data in a DataFrame for easy retrieval with a readable index
 df_similarities = pd.DataFrame(similarities, columns=df_cleaned['ReadableTitle'],index=df_cleaned['ReadableTitle']).reset_index()
 
 ############### Create and Layout Main Window ###############
